@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:homemed/screens/auth/register.dart';
 import 'package:homemed/screens/welcome.dart';
 
 void main() {
@@ -8,7 +9,10 @@ void main() {
 
 final GoRouter _router = GoRouter(
   initialLocation: '/',
-  routes: [GoRoute(path: '/', builder: ((context, state) => Welcome()))],
+  routes: [
+    GoRoute(path: '/', builder: ((context, state) => Welcome())),
+    GoRoute(path: '/register', builder: ((_, _) => Register())),
+  ],
 );
 
 class MyApp extends StatelessWidget {
@@ -28,6 +32,9 @@ class MyApp extends StatelessWidget {
             minimumSize: Size(.infinity, 56),
             shape: RoundedRectangleBorder(borderRadius: .circular(8)),
           ),
+        ),
+        inputDecorationTheme: InputDecorationThemeData(
+          border: OutlineInputBorder(borderRadius: .all(.circular(8))),
         ),
       ),
     );

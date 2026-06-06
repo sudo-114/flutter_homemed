@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class Welcome extends StatelessWidget {
   const Welcome({super.key});
@@ -35,7 +36,12 @@ class Welcome extends StatelessWidget {
                   ),
                 ),
               ),
-              FilledButton(onPressed: () {}, child: const Text('Get Started')),
+              FilledButton(
+                onPressed: () {
+                  context.push('/register');
+                },
+                child: const Text('Get Started'),
+              ),
               const SizedBox(height: 12),
             ],
           ),
