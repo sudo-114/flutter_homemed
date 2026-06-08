@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:homemed/main.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PhoneForm extends StatefulWidget {
   const PhoneForm({super.key});
@@ -12,25 +14,62 @@ class PhoneForm extends StatefulWidget {
 class _PhoneFormState extends State<PhoneForm> {
   String? _phone;
   bool _isLoading = false;
+  final TextEditingController _phoneInput = TextEditingController();
 
-  void _submit() {
+  @override
+  void dispose() {
+    _phoneInput.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (_phone == null || _phone!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your phone number')),
+      );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
     try {
-      if (_phone!.isNotEmpty) {
-        print(_phone);
-        setState(() {
-          _isLoading = true;
-        });
-      }
-    } finally {
-      setState(() {
-        _isLoading = false;
+      await supabase.auth.signInWithOtp(phone: _phone);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Verification code sent to $_phone')),
+      );
+
+      Future.delayed(Duration(seconds: 2), () {
+        if (!mounted) return;
+        context.go(
+          Uri(path: '/verify', queryParameters: {'phone': _phone}).toString(),
+        );
       });
+    } on AuthApiException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message)));
+    } catch (e) {
+      String errMsg = 'Failed to send code. Try again';
+      if (e.toString().contains('SocketException')) {
+        errMsg = 'No internet connection';
+      }
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(errMsg)));
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final colorTheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
 
     return Column(
@@ -40,22 +79,22 @@ class _PhoneFormState extends State<PhoneForm> {
           'Phone number',
           style: textTheme.labelMedium?.copyWith(fontWeight: .bold),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         IntlPhoneField(
+          controller: _phoneInput,
           initialCountryCode: 'GH',
+          autofocus: true,
+          invalidNumberMessage: 'Invalid phone number',
           onChanged: (text) => _phone = text.completeNumber,
         ),
         const SizedBox(height: 16),
         FilledButton(
-          onPressed: () => _submit(),
+          onPressed: _isLoading ? null : () => _submit(),
           child: _isLoading
-              ? SizedBox(
+              ? const SizedBox(
                   height: 20,
                   width: 20,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: colorTheme.onPrimary,
-                  ),
+                  child: CircularProgressIndicator(strokeWidth: 2),
                 )
               : const Text('Continue'),
         ),
@@ -83,7 +122,7 @@ class Register extends StatelessWidget {
                   alignment: .topLeft,
                   child: BackButton(
                     onPressed: () {
-                      context.pop();
+                      context.go('/');
                     },
                   ),
                 ),
@@ -103,9 +142,9 @@ class Register extends StatelessWidget {
                         'Enter your phone number to get started',
                         style: TextStyle(color: colorScheme.onSurfaceVariant),
                       ),
-                      SizedBox(height: 36),
+                      const SizedBox(height: 36),
 
-                      PhoneForm(),
+                      const PhoneForm(),
                     ],
                   ),
                 ),
