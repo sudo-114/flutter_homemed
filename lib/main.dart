@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
 import 'package:homemed/screens/auth/register.dart';
+import 'package:homemed/screens/auth/verify.dart';
 import 'package:homemed/screens/welcome.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -24,6 +25,7 @@ final GoRouter _router = GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => const Welcome()),
     GoRoute(path: '/register', builder: (_, _) => const Register()),
+    GoRoute(path: '/verify', builder: (_, _) => const Verify()),
   ],
 );
 

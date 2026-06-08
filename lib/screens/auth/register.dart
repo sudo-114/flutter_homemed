@@ -96,7 +96,7 @@ class _PhoneFormState extends State<PhoneForm> {
                   width: 20,
                   child: CircularProgressIndicator(strokeWidth: 2),
                 )
-              : const Text('Continue'),
+              : const Text('Send code'),
         ),
       ],
     );
@@ -114,7 +114,7 @@ class Register extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           child: Center(
             child: Column(
               children: [
