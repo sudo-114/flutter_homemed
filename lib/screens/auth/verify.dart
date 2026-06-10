@@ -113,7 +113,12 @@ class _OptFormState extends State<OtpForm> {
       );
 
       if (!mounted) return;
-      context.go('/complete-profile');
+      context.go(
+        Uri(
+          path: '/complete-profile',
+          queryParameters: {'phone': widget.phone},
+        ).toString(),
+      );
     } on AuthApiException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -197,7 +202,7 @@ class Verify extends StatelessWidget {
                   alignment: .topLeft,
                   child: BackButton(
                     onPressed: () {
-                      context.go('/register');
+                      context.pop();
                     },
                   ),
                 ),

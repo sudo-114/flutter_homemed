@@ -42,7 +42,7 @@ class _PhoneFormState extends State<PhoneForm> {
 
       Future.delayed(Duration(seconds: 2), () {
         if (!mounted) return;
-        context.go(
+        context.push(
           Uri(path: '/verify', queryParameters: {'phone': _phone}).toString(),
         );
       });
@@ -122,7 +122,7 @@ class Register extends StatelessWidget {
                   alignment: .topLeft,
                   child: BackButton(
                     onPressed: () {
-                      context.go('/');
+                      context.pop();
                     },
                   ),
                 ),

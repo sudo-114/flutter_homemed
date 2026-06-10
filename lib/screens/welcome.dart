@@ -38,7 +38,7 @@ class Welcome extends StatelessWidget {
               ),
               FilledButton(
                 onPressed: () {
-                  context.go('/register');
+                  context.push('/register');
                 },
                 child: const Text('Get Started'),
               ),
