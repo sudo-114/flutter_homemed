@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:go_router/go_router.dart';
+import 'package:homemed/screens/auth/complete_profile.dart';
 import 'package:homemed/screens/auth/register.dart';
 import 'package:homemed/screens/auth/verify.dart';
 import 'package:homemed/screens/welcome.dart';
@@ -26,6 +27,10 @@ final GoRouter _router = GoRouter(
     GoRoute(path: '/', builder: (context, state) => const Welcome()),
     GoRoute(path: '/register', builder: (_, _) => const Register()),
     GoRoute(path: '/verify', builder: (_, _) => const Verify()),
+    GoRoute(
+      path: '/complete-profile',
+      builder: (_, _) => const CompleteProfile(),
+    ),
   ],
 );
 

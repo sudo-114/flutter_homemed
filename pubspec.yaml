@@ -16,6 +16,7 @@ dependencies:
   flutter_dotenv: ^6.0.1
   pinput: ^6.0.2
   form_builder_validators: ^11.3.0
+  date_field: ^6.0.3
 
 dev_dependencies:
   flutter_test:
