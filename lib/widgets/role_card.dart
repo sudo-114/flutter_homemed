@@ -46,6 +46,7 @@ class RoleCard extends StatelessWidget {
               Text(
                 label,
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  fontWeight: .w500,
                   color: selected
                       ? theme.colorScheme.onSurface
                       : theme.colorScheme.onSurfaceVariant,
