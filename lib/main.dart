@@ -6,6 +6,7 @@ import 'package:homemed/screens/auth/register.dart';
 import 'package:homemed/screens/auth/verify.dart';
 import 'package:homemed/screens/welcome.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'dart:async';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,8 +22,44 @@ void main() async {
 
 final supabase = Supabase.instance.client;
 
+// Helper to turn a Stream into a ChangeNotifier for GoRouter's refreshListenable
+class GoRouterRefreshStream extends ChangeNotifier {
+  GoRouterRefreshStream(Stream<dynamic> stream) {
+    _sub = stream.asBroadcastStream().listen((_) => notifyListeners());
+  }
+
+  late final StreamSubscription _sub;
+
+  @override
+  void dispose() {
+    _sub.cancel();
+    super.dispose();
+  }
+}
+
 final GoRouter _router = GoRouter(
   initialLocation: '/',
+  // refresh when auth state changes
+  refreshListenable: GoRouterRefreshStream(
+    supabase.auth.onAuthStateChange.map((e) => e.session),
+  ),
+  redirect: (context, state) {
+    final loggedIn = supabase.auth.currentUser != null;
+    final goingToComplete = state.matchedLocation == '/complete-profile';
+    final goingToAuthPages =
+        state.matchedLocation == '/' ||
+        state.matchedLocation == '/register' ||
+        state.matchedLocation == '/verify';
+
+    // If not logged in and trying to access complete-profile, send to welcome
+    if (!loggedIn && goingToComplete) return '/register';
+
+    // If logged in and on auth pages, send to complete-profile
+    if (loggedIn && goingToAuthPages) return '/complete-profile';
+
+    // No-op
+    return null;
+  },
   routes: [
     GoRoute(path: '/', builder: (context, state) => const Welcome()),
     GoRoute(path: '/register', builder: (_, _) => const Register()),
