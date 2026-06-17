@@ -43,15 +43,16 @@ final GoRouter _router = GoRouter(
   refreshListenable: GoRouterRefreshStream(
     supabase.auth.onAuthStateChange.map((e) => e.session),
   ),
-  redirect: (context, state) {
-    final loggedIn = supabase.auth.currentUser != null;
+  redirect: (context, state) async {
+    final user = supabase.auth.currentUser;
+    final loggedIn = user != null;
     final goingToComplete = state.matchedLocation == '/complete-profile';
     final goingToAuthPages =
         state.matchedLocation == '/' ||
         state.matchedLocation == '/register' ||
         state.matchedLocation == '/verify';
 
-    // If not logged in and trying to access complete-profile, send to welcome
+    // If not logged in and trying to access complete-profile, send to register
     if (!loggedIn && goingToComplete) return '/register';
 
     // If logged in and on auth pages, send to complete-profile

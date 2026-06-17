@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:go_router/go_router.dart';
 import 'package:homemed/main.dart';
 import 'package:homemed/widgets/field_label.dart';
 import 'package:intl/intl.dart';
@@ -67,6 +68,8 @@ class _PatientFormState extends State<PatientForm> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Profile saved')));
+
+      context.go('/home');
     } on AuthApiException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
