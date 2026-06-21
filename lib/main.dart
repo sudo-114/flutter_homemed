@@ -56,7 +56,27 @@ final GoRouter _router = GoRouter(
     if (!loggedIn && goingToComplete) return '/register';
 
     // If logged in and on auth pages, send to complete-profile
-    if (loggedIn && goingToAuthPages) return '/complete-profile';
+    if (loggedIn) {
+      try {
+        final res = await supabase
+            .from('profiles')
+            .select('role')
+            .eq('id', user.id)
+            .maybeSingle();
+        final hasProfile = res != null && res['role'] != null;
+
+        // If logged in and on auth pages, send to home or complete-profile depending on profile
+        if (goingToAuthPages) {
+          return hasProfile ? '/home' : '/complete-profile';
+        }
+
+        // If logged in and trying to access complete-profile but profile exists, send to home
+        if (goingToComplete && hasProfile) return '/home';
+      } catch (e) {
+        // On error, fall back to complete-profile when on auth pages
+        if (goingToAuthPages) return '/complete-profile';
+      }
+    }
 
     // No-op
     return null;
