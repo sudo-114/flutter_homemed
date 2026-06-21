@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -19,18 +17,15 @@ class PatientForm extends StatefulWidget {
 }
 
 class _PatientFormState extends State<PatientForm> {
-  final List _gender = jsonDecode('''
-  [
-    {"id": "male", "label" : "Male"},
-    {"id": "female", "label" : "Female"},
-    {"id": "other", "label" : "Other"}
-  ]
-  ''');
+  final List<DropdownMenuItem<String>> _gender = [
+    DropdownMenuItem(value: 'male', child: Text('Male')),
+    DropdownMenuItem(value: 'female', child: Text('Female')),
+  ];
 
   final _formKey = GlobalKey<FormState>();
-  String? _selectedGender;
-  String? _genderError;
   DateTime? _date;
+  String? dob;
+  String? _selectedGender;
   final _name = TextEditingController();
   bool _isLoading = false;
 
@@ -39,24 +34,18 @@ class _PatientFormState extends State<PatientForm> {
 
     try {
       final isValid = _formKey.currentState?.validate() ?? false;
-      final dob = DateFormat.yMd().format(_date!);
 
-      setState(() {
-        _genderError = _selectedGender == null
-            ? 'Please select a gender'
-            : null;
-      });
-
-      if (!isValid || _selectedGender == null) {
-        return;
+      if (_date != null) {
+        dob = DateFormat.yMd().format(_date!);
       }
+
+      if (!isValid) return;
 
       final userId = supabase.auth.currentUser?.id;
 
       final payload = {
         'id': userId,
         'name': _name.text.trim(),
-        'gender': _selectedGender,
         'dob': dob,
         'phone': widget.phone,
         'role': widget.role,
@@ -81,7 +70,6 @@ class _PatientFormState extends State<PatientForm> {
       if (e.toString().contains('SocketException')) {
         errMsg = 'No internet connection';
       }
-
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
@@ -101,8 +89,6 @@ class _PatientFormState extends State<PatientForm> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Form(
       key: _formKey,
       child: Column(
@@ -137,54 +123,15 @@ class _PatientFormState extends State<PatientForm> {
           const SizedBox(height: 16),
 
           const FieldLabel(label: 'Gender'),
-          Row(
-            children: _gender.map((gender) {
-              final id = gender['id'] as String;
-              final label = gender['label'] as String;
-              final selected = _selectedGender == id;
-
-              return Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 12.0),
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: .fromHeight(46),
-                      side: BorderSide(
-                        width: 2,
-                        color: selected
-                            ? theme.colorScheme.primary
-                            : theme.colorScheme.onSurfaceVariant.withAlpha(130),
-                      ),
-                      backgroundColor: selected
-                          ? theme.colorScheme.primary.withAlpha(20)
-                          : null,
-                      shape: RoundedRectangleBorder(borderRadius: .circular(8)),
-                    ),
-                    onPressed: () => setState(() => _selectedGender = id),
-                    child: Text(
-                      label,
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        fontWeight: .w500,
-                        color: selected
-                            ? theme.colorScheme.primary
-                            : theme.colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-
-          if (_genderError != null) ...[
-            const SizedBox(height: 4),
-            Text(
-              _genderError!,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: theme.colorScheme.error,
-              ),
+          DropdownButtonFormField(
+            items: _gender,
+            initialValue: _selectedGender,
+            decoration: const InputDecoration(hintText: 'Select gender'),
+            onChanged: (value) => _selectedGender = value,
+            validator: FormBuilderValidators.required(
+              errorText: 'Please select your gender',
             ),
-          ],
+          ),
 
           const SizedBox(height: 38),
 
