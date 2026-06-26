@@ -1,16 +1,15 @@
-CREATE TYPE user_role AS ENUM ('PATIENT', 'DOCTOR');
+CREATE TYPE user_role AS ENUM ('patient', 'doctor');
+CREATE TYPE user_gender AS ENUM ('male', 'female');
 
-CREATE TABLE public.users (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    phone_number VARCHAR(20) NOT NULL UNIQUE,
+CREATE TABLE profiles (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    name TEXT,
+    phone TEXT UNIQUE NOT NULL,
+    dob TEXT,
+    gender user_gender,
     role user_role NOT NULL,
-    created_at timestamptz DEFAULT now() NOT NULL
-);
-
-CREATE TABLE public.doctor_profiles (
-    doctor_id UUID PRIMARY KEY REFERENCES public.users(id) ON DELETE CASCADE,
-    license_number VARCHAR(50) NOT NULL UNIQUE,
-    is_verified BOOLEAN DEFAULT false NOT NULL,
-    is_available BOOLEAN DEFAULT false NOT NULL,
-    updated_at timestamptz DEFAULT now() NOT NULL
+    specialty TEXT,
+    license  TEXT,
+    xp_years TEXT,
+    created_at TIMESTAMPTZ DEFAULT now()
 );
