@@ -103,6 +103,10 @@ class _CompleteProfileState extends State<CompleteProfile> {
 
               (_selectedRole == 'doctor')
                   ? DoctorForm(phone: phone, role: _selectedRole)
+                  ? PatientForm(
+                      phone: GoRouterState.of(context).uri.queryParameters['phone'],
+                      role: _selectedRole,
+                    )
                   : SizedBox.shrink(),
             ],
           ),

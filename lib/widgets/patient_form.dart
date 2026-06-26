@@ -2,6 +2,11 @@ import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
+import 'dart:convert';
+
+import 'package:date_field/date_field.dart';
+import 'package:flutter/material.dart';
+import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:homemed/main.dart';
 import 'package:homemed/widgets/field_label.dart';
 import 'package:intl/intl.dart';
@@ -26,6 +31,18 @@ class _PatientFormState extends State<PatientForm> {
   DateTime? _date;
   String? dob;
   String? _selectedGender;
+  final List _gender = jsonDecode('''
+  [
+    {"id": "male", "label" : "Male"},
+    {"id": "female", "label" : "Female"},
+    {"id": "other", "label" : "Other"}
+  ]
+  ''');
+
+  final _formKey = GlobalKey<FormState>();
+  String? _selectedGender;
+  String? _genderError;
+  String? _dob;
   final _name = TextEditingController();
   bool _isLoading = false;
 
@@ -40,6 +57,15 @@ class _PatientFormState extends State<PatientForm> {
       }
 
       if (!isValid) return;
+      setState(() {
+        _genderError = _selectedGender == null
+            ? 'Please select a gender'
+            : null;
+      });
+
+      if (!isValid || _selectedGender == null) {
+        return;
+      }
 
       final userId = supabase.auth.currentUser?.id;
 
@@ -47,6 +73,8 @@ class _PatientFormState extends State<PatientForm> {
         'id': userId,
         'name': _name.text.trim(),
         'dob': dob,
+        'gender': _selectedGender,
+        'dob': _dob,
         'phone': widget.phone,
         'role': widget.role,
       };
@@ -66,10 +94,12 @@ class _PatientFormState extends State<PatientForm> {
       ).showSnackBar(SnackBar(content: Text(e.message)));
     } catch (e) {
       String errMsg = 'Something went wrong. Try again later';
+      String errMsg = 'Something went wrong. Try again';
 
       if (e.toString().contains('SocketException')) {
         errMsg = 'No internet connection';
       }
+
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
@@ -89,6 +119,8 @@ class _PatientFormState extends State<PatientForm> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Form(
       key: _formKey,
       child: Column(
@@ -116,6 +148,7 @@ class _PatientFormState extends State<PatientForm> {
             lastDate: .now(),
             decoration: const InputDecoration(hintText: 'mm/dd/yyyy'),
             onChanged: (date) => _date = date,
+            onChanged: (date) => _dob = DateFormat.yMd().format(date!),
             validator: (date) => FormBuilderValidators.required(
               errorText: 'Please enter your date of birth',
             )(date),
@@ -132,6 +165,55 @@ class _PatientFormState extends State<PatientForm> {
               errorText: 'Please select your gender',
             ),
           ),
+
+          Row(
+            children: _gender.map((gender) {
+              final id = gender['id'] as String;
+              final label = gender['label'] as String;
+              final selected = _selectedGender == id;
+
+              return Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 12.0),
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: .fromHeight(46),
+                      side: BorderSide(
+                        width: 2,
+                        color: selected
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.onSurfaceVariant.withAlpha(130),
+                      ),
+                      backgroundColor: selected
+                          ? theme.colorScheme.primary.withAlpha(20)
+                          : null,
+                      shape: RoundedRectangleBorder(borderRadius: .circular(8)),
+                    ),
+                    onPressed: () => setState(() => _selectedGender = id),
+                    child: Text(
+                      label,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        fontWeight: .w500,
+                        color: selected
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+
+          if (_genderError != null) ...[
+            const SizedBox(height: 4),
+            Text(
+              _genderError!,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.error,
+              ),
+            ),
+          ],
 
           const SizedBox(height: 38),
 
