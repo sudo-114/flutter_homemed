@@ -52,6 +52,7 @@ class _PatientFormState extends State<PatientForm> {
         'role': widget.role,
       };
 
+      storage.write('role', widget.role);
       await supabase.from('profiles').upsert(payload);
 
       if (!mounted) return;

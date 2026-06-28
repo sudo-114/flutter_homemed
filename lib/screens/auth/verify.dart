@@ -113,12 +113,8 @@ class _OptFormState extends State<OtpForm> {
       );
 
       if (!mounted) return;
-      context.go(
-        Uri(
-          path: '/complete-profile',
-          queryParameters: {'phone': widget.phone},
-        ).toString(),
-      );
+      storage.write('phone', widget.phone);
+      context.go('/complete-profile');
     } on AuthApiException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(

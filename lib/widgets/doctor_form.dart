@@ -19,10 +19,9 @@ class _DoctorFormState extends State<DoctorForm> {
   final _name = TextEditingController();
   final _license = TextEditingController();
   final _xpYears = TextEditingController();
+  String? _specialty;
 
   bool _isLoading = false;
-
-  String? _specialty;
 
   final List<DropdownMenuItem<String>> _specialties = [
     const DropdownMenuItem(value: 'cardiology', child: Text('Cardiology')),
@@ -51,6 +50,7 @@ class _DoctorFormState extends State<DoctorForm> {
         'role': widget.role,
       };
 
+      storage.write('role', widget.role);
       await supabase.from('profiles').upsert(payload);
 
       if (!mounted) return;

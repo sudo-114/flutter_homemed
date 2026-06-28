@@ -1,16 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:homemed/screens/auth/complete_profile.dart';
 import 'package:homemed/screens/auth/register.dart';
 import 'package:homemed/screens/auth/verify.dart';
 import 'package:homemed/screens/welcome.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:async';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await GetStorage.init();
   await dotenv.load(fileName: '.env.local');
   final supabaseUrl = dotenv.env['SUPABASE_URL'];
   final supabaseKey = dotenv.env['SUPABASE_KEY'];
@@ -21,6 +24,7 @@ void main() async {
 }
 
 final supabase = Supabase.instance.client;
+final storage = GetStorage();
 
 // Helper to turn a Stream into a ChangeNotifier for GoRouter's refreshListenable
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -52,6 +56,8 @@ final GoRouter _router = GoRouter(
         state.matchedLocation == '/register' ||
         state.matchedLocation == '/verify';
 
+    final role = storage.read('role');
+
     // If not logged in and trying to access complete-profile, send to register
     if (!loggedIn && goingToComplete) return '/register';
 
@@ -78,6 +84,11 @@ final GoRouter _router = GoRouter(
       }
     }
 
+    if (state.matchedLocation == '/home') {
+      if (role == 'patient') return '/patient';
+      if (role == 'doctor') return '/doctor';
+    }
+
     // No-op
     return null;
   },
@@ -89,6 +100,7 @@ final GoRouter _router = GoRouter(
       path: '/complete-profile',
       builder: (_, _) => const CompleteProfile(),
     ),
+    GoRoute(path: '/home', builder: (_, _) => const SizedBox.shrink()),
   ],
 );
 

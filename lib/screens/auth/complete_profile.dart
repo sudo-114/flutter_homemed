@@ -1,7 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:homemed/main.dart';
 import 'package:homemed/widgets/doctor_form.dart';
 import 'package:homemed/widgets/patient_form.dart';
 import 'package:homemed/widgets/role_card.dart';
@@ -32,7 +32,7 @@ class _CompleteProfileState extends State<CompleteProfile> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final phone = GoRouterState.of(context).uri.queryParameters['phone'];
+    final phone = storage.read('phone');
 
     return Scaffold(
       body: SafeArea(
