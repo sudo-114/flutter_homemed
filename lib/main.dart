@@ -66,7 +66,9 @@ final GoRouter _router = GoRouter(
       try {
         final res = await supabase
             .from('profiles')
-            .select('role')
+            .select(
+              'name, phone, role, dob, gender, specialty, license, xp_years',
+            )
             .eq('id', user.id)
             .maybeSingle();
         final hasProfile = res != null && res['role'] != null;
@@ -78,6 +80,22 @@ final GoRouter _router = GoRouter(
 
         // If logged in and trying to access complete-profile but profile exists, send to home
         if (goingToComplete && hasProfile) return '/home';
+
+        if (res != null) {
+          final role = res['role'];
+          storage.write('role', role);
+          storage.write('name', res['name']);
+          storage.write('phone', res['phone']);
+
+          if (role == 'doctor') {
+            storage.write('specialty', res['specialty']);
+            storage.write('license', res['license']);
+            storage.write('xp_years', res['xp_years']);
+          } else if (role == 'patient') {
+            storage.write('dob', res['dob']);
+            storage.write('gender', res['gender']);
+          }
+        }
       } catch (e) {
         // On error, fall back to complete-profile when on auth pages
         if (goingToAuthPages) return '/complete-profile';
