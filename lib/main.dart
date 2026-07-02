@@ -143,6 +143,12 @@ class MyApp extends StatelessWidget {
             shape: RoundedRectangleBorder(borderRadius: .circular(8)),
           ),
         ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            minimumSize: Size(.infinity, 56),
+            shape: RoundedRectangleBorder(borderRadius: .circular(8)),
+          ),
+        ),
         inputDecorationTheme: InputDecorationThemeData(
           border: OutlineInputBorder(borderRadius: .all(.circular(8))),
         ),
