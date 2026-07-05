@@ -31,7 +31,7 @@ class PatientHome extends StatelessWidget {
               const SizedBox(height: 24),
               _EmergencyBanner(),
               const SizedBox(height: 24),
-              _RequestHelpCard(),
+              _RequestHelpCard(onTap: () => context.push('/request-form')),
               const SizedBox(height: 24),
               Row(
                 mainAxisAlignment: .spaceBetween,
@@ -116,13 +116,17 @@ class _EmergencyBanner extends StatelessWidget {
 }
 
 class _RequestHelpCard extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _RequestHelpCard({required this.onTap});
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
     return InkWell(
-      onTap: () {},
+      onTap: onTap,
       borderRadius: .circular(8),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),

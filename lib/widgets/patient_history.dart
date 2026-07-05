@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 class PatientHistory extends StatelessWidget {
   const PatientHistory({super.key});
@@ -44,7 +45,7 @@ class _HistoryEmpty extends StatelessWidget {
           ),
           const SizedBox(height: 32),
           FilledButton(
-            onPressed: () {},
+            onPressed: () => context.push('/request-form'),
             child: const Text('Request medical help'),
           ),
         ],

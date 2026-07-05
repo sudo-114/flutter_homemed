@@ -8,6 +8,7 @@ import 'package:homemed/screens/auth/complete_profile.dart';
 import 'package:homemed/screens/auth/register.dart';
 import 'package:homemed/screens/auth/verify.dart';
 import 'package:homemed/screens/patient.dart';
+import 'package:homemed/screens/request_form.dart';
 import 'package:homemed/screens/welcome.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -120,6 +121,7 @@ final GoRouter _router = GoRouter(
       builder: (_, _) => const CompleteProfile(),
     ),
     GoRoute(path: '/home', builder: (_, _) => const SizedBox.shrink()),
+    GoRoute(path: '/request-form', builder: (_, _) => const RequestForm()),
 
     patientTabRoute,
   ],
