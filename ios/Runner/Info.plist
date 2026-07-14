@@ -70,5 +70,11 @@
 	<array>
 		<string>tel</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>HomeMed needs microphone access to record voice notes for medical requests.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>HomeMed needs photo library access to attach photos to medical requests.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>HomeMed needs camera access to take photos for medical requests.</string>
 </dict>
 </plist>

@@ -40,3 +40,35 @@ CREATE POLICY "Profiles are insertable by authenticated users."
     ON profiles
     FOR INSERT
     WITH CHECK (id = auth.uid());
+
+CREATE TYPE request_status AS ENUM ('pending', 'accepted', 'completed', 'cancelled');
+
+CREATE TABLE consultation_requests (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    patient_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    symptoms TEXT NOT NULL,
+    file_urls TEXT[] DEFAULT '{}',
+    status request_status NOT NULL DEFAULT 'pending',
+    created_at TIMESTAMPTZ DEFAULT now()
+);
+
+-- Enable RLS
+ALTER TABLE consultation_requests ENABLE ROW LEVEL SECURITY;
+
+-- Patients can view their own requests
+CREATE POLICY "Patients can view their own requests."
+    ON consultation_requests
+    FOR SELECT
+    USING (patient_id = auth.uid());
+
+-- Patients can insert their own requests
+CREATE POLICY "Patients can insert their own requests."
+    ON consultation_requests
+    FOR INSERT
+    WITH CHECK (patient_id = auth.uid());
+
+-- Patients can cancel their own requests
+CREATE POLICY "Patients can update their own requests."
+    ON consultation_requests
+    FOR UPDATE
+    USING (patient_id = auth.uid());
