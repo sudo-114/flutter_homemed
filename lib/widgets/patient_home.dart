@@ -10,7 +10,9 @@ class PatientHome extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorscheme = Theme.of(context).colorScheme;
-    final name = storage.read('name');
+    final String userName = storage.read('name');
+    final nameSplit = userName.split(' ');
+    final name = nameSplit.firstOrNull;
 
     return Scaffold(
       body: SafeArea(
