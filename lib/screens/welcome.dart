@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:homemed/main.dart';
 
 class Welcome extends StatelessWidget {
   const Welcome({super.key});
@@ -38,6 +39,7 @@ class Welcome extends StatelessWidget {
               ),
               FilledButton(
                 onPressed: () {
+                  storage.write('not-first', true);
                   context.push('/register');
                 },
                 child: const Text('Get Started'),

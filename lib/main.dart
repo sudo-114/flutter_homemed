@@ -5,6 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:homemed/screens/auth/complete_profile.dart';
+import 'package:homemed/screens/auth/login.dart';
 import 'package:homemed/screens/auth/register.dart';
 import 'package:homemed/screens/auth/verify.dart';
 import 'package:homemed/screens/patient.dart';
@@ -59,6 +60,12 @@ final GoRouter _router = GoRouter(
         state.matchedLocation == '/verify';
 
     final role = storage.read('role');
+
+    if (!loggedIn &&
+        state.matchedLocation == '/' &&
+        storage.read('not-first') == true) {
+      return '/login';
+    }
 
     // If not logged in and trying to access complete-profile, send to register
     if (!loggedIn && goingToComplete) return '/register';
@@ -115,6 +122,7 @@ final GoRouter _router = GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => const Welcome()),
     GoRoute(path: '/register', builder: (_, _) => const Register()),
+    GoRoute(path: '/login', builder: (_, _) => const Login()),
     GoRoute(path: '/verify', builder: (_, _) => const Verify()),
     GoRoute(
       path: '/complete-profile',

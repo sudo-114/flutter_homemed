@@ -13,6 +13,7 @@ class PatientProfile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
     final name = storage.read('name');
     final dob = storage.read('dob');
     final gender = convertToSentenceCase(storage.read('gender'));
@@ -34,9 +35,9 @@ class PatientProfile extends StatelessWidget {
                         children: [
                           const Icon(Icons.person_outlined),
                           const SizedBox(width: 8),
-                          const Text(
+                          Text(
                             'Personal info',
-                            style: TextStyle(fontWeight: .w600),
+                            style: text.bodyLarge!.copyWith(fontWeight: .w600),
                           ),
                         ],
                       ),

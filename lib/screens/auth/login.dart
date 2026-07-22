@@ -108,8 +108,8 @@ class _PhoneFormState extends State<PhoneForm> {
   }
 }
 
-class Register extends StatelessWidget {
-  const Register({super.key});
+class Login extends StatelessWidget {
+  const Login({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -122,28 +122,19 @@ class Register extends StatelessWidget {
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
-              Align(
-                alignment: .topLeft,
-                child: BackButton(
-                  onPressed: () {
-                    context.pop();
-                  },
-                ),
-              ),
-
               Expanded(
                 child: Column(
                   mainAxisAlignment: .center,
                   children: [
                     Text(
-                      'Welcome to HomeMed',
+                      'Welcome back',
                       style: textTheme.headlineSmall?.copyWith(
                         fontWeight: .bold,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Enter your phone number to get started',
+                      'Enter your phone number to log in',
                       style: TextStyle(color: colorScheme.onSurfaceVariant),
                     ),
                     const SizedBox(height: 36),
@@ -152,15 +143,6 @@ class Register extends StatelessWidget {
                   ],
                 ),
               ),
-
-              Text(
-                'By continuing, you agree to our Terms of Service and Privacy Policy',
-                textAlign: .center,
-                style: textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 8),
             ],
           ),
         ),
