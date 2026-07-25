@@ -1,0 +1,44 @@
+class ConsultationRequest {
+  final String id;
+  final String symptoms;
+  final String? status;
+  final List<String>? fileUrls;
+  final DateTime createdAt;
+
+  const ConsultationRequest({
+    required this.id,
+    required this.symptoms,
+    this.status,
+    this.fileUrls,
+    required this.createdAt,
+  });
+
+  factory ConsultationRequest.fromMap(Map<String, dynamic> map) {
+    String status = '';
+
+    switch (map['status']) {
+      case 'pending':
+        status = 'Pending';
+        break;
+      case 'accepted':
+        status = 'Accepted';
+        break;
+      case 'completed':
+        status = 'Completed';
+        break;
+      case 'cancelled':
+        status = 'Cancelled';
+        break;
+    }
+
+    return ConsultationRequest(
+      id: map['id'],
+      symptoms: map['symptoms'],
+      status: status,
+      fileUrls: (map['file_urls'] != null)
+          ? List<String>.from(map['file_urls'])
+          : null,
+      createdAt: DateTime.parse(map['created_at']),
+    );
+  }
+}
