@@ -178,6 +178,7 @@ class _EmergencyBanner extends StatelessWidget {
       borderRadius: .circular(8),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+        width: .infinity,
         decoration: BoxDecoration(
           color: scheme.errorContainer,
           borderRadius: BorderRadius.circular(8),
@@ -237,6 +238,7 @@ class _RequestHelpCard extends StatelessWidget {
       borderRadius: .circular(8),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+        width: .infinity,
         decoration: BoxDecoration(
           color: scheme.primary,
           borderRadius: .circular(8),

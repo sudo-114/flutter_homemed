@@ -53,25 +53,25 @@ final GoRouter _router = GoRouter(
   redirect: (context, state) async {
     final user = supabase.auth.currentUser;
     final loggedIn = user != null;
-    final goingToComplete = state.matchedLocation == '/complete-profile';
+    final location = state.matchedLocation;
     final goingToAuthPages =
-        state.matchedLocation == '/' ||
-        state.matchedLocation == '/register' ||
-        state.matchedLocation == '/verify';
+        location == '/' ||
+        location == '/login' ||
+        location == '/register' ||
+        location == '/verify';
+    final goingToComplete = location == '/complete-profile';
 
-    final role = storage.read('role');
-
-    if (!loggedIn &&
-        state.matchedLocation == '/' &&
-        storage.read('not-first') == true) {
-      return '/login';
+    if (!loggedIn) {
+      if (goingToComplete) return '/register';
+      if (location == '/' && storage.read('not-first') == true) return '/login';
+      return null;
     }
 
-    // If not logged in and trying to access complete-profile, send to register
-    if (!loggedIn && goingToComplete) return '/register';
+    // --- USER IS LOGGED IN ---
+    String? role = storage.read('role');
 
-    // If logged in and on auth pages, send to complete-profile
-    if (loggedIn) {
+    // If role is not cached in storage, fetch once from Supabase (with timeout)
+    if (role == null) {
       try {
         final res = await supabase
             .from('profiles')
@@ -79,19 +79,11 @@ final GoRouter _router = GoRouter(
               'name, phone, role, dob, gender, specialty, license, xp_years',
             )
             .eq('id', user.id)
-            .maybeSingle();
-        final hasProfile = res != null && res['role'] != null;
+            .maybeSingle()
+            .timeout(const Duration(seconds: 3));
 
-        // If logged in and on auth pages, send to home or complete-profile depending on profile
-        if (goingToAuthPages) {
-          return hasProfile ? '/home' : '/complete-profile';
-        }
-
-        // If logged in and trying to access complete-profile but profile exists, send to home
-        if (goingToComplete && hasProfile) return '/home';
-
-        if (res != null) {
-          final role = res['role'];
+        if (res != null && res['role'] != null) {
+          role = res['role'] as String;
           storage.write('role', role);
           storage.write('name', res['name']);
           storage.write('phone', res['phone']);
@@ -105,18 +97,23 @@ final GoRouter _router = GoRouter(
             storage.write('gender', res['gender']);
           }
         }
-      } catch (e) {
-        // On error, fall back to complete-profile when on auth pages
-        if (goingToAuthPages) return '/complete-profile';
+      } catch (_) {
+        // Ignore network error/timeout when offline
       }
     }
 
-    if (state.matchedLocation == '/home') {
-      if (role == 'patient') return '/patient';
-      if (role == 'doctor') return '/doctor';
+    // If profile is incomplete, send to complete-profile
+    if (role == null) {
+      return goingToComplete ? null : '/complete-profile';
     }
 
-    // No-op
+    // User has a role: redirect away from auth/complete/home to their dashboard
+    final dashboard = (role == 'doctor') ? '/doctor' : '/patient';
+
+    if (goingToAuthPages || goingToComplete || location == '/home') {
+      return dashboard;
+    }
+
     return null;
   },
   routes: [

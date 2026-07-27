@@ -87,7 +87,6 @@ class _ErrorHistory extends StatelessWidget {
     return Column(
       mainAxisAlignment: .center,
       children: [
-        const SizedBox(height: 100),
         Icon(
           Icons.cloud_off_rounded,
           size: 130,
@@ -117,7 +116,6 @@ class _HistoryEmpty extends StatelessWidget {
     return Column(
       mainAxisAlignment: .center,
       children: [
-        const SizedBox(height: 100),
         Icon(
           Icons.history_rounded,
           size: 130,
