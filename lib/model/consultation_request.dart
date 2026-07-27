@@ -3,6 +3,7 @@ class ConsultationRequest {
   final String symptoms;
   final String? status;
   final List<String>? fileUrls;
+  final String? doctorName;
   final DateTime createdAt;
 
   const ConsultationRequest({
@@ -10,6 +11,7 @@ class ConsultationRequest {
     required this.symptoms,
     this.status,
     this.fileUrls,
+    this.doctorName,
     required this.createdAt,
   });
 
@@ -29,6 +31,8 @@ class ConsultationRequest {
       case 'cancelled':
         status = 'Cancelled';
         break;
+      default:
+        status = map['status'] ?? 'Pending';
     }
 
     return ConsultationRequest(
@@ -38,6 +42,7 @@ class ConsultationRequest {
       fileUrls: (map['file_urls'] != null)
           ? List<String>.from(map['file_urls'])
           : null,
+      doctorName: map['doctor_name'],
       createdAt: DateTime.parse(map['created_at']),
     );
   }

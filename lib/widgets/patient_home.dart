@@ -20,7 +20,7 @@ class PatientHome extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: EdgeInsets.all(24),
+          padding: EdgeInsets.only(top: 24, left: 24, right: 24, bottom: 8),
           child: Column(
             crossAxisAlignment: .start,
             children: [
