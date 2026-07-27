@@ -4,9 +4,8 @@ import 'package:intl/intl.dart';
 
 class HistoryCard extends StatelessWidget {
   final ConsultationRequest request;
-  final VoidCallback? onTap;
 
-  const HistoryCard({super.key, required this.request, this.onTap});
+  const HistoryCard({super.key, required this.request});
 
   String _formatDate(DateTime dateTime) {
     final now = DateTime.now();
@@ -37,6 +36,18 @@ class HistoryCard extends StatelessWidget {
     }
   }
 
+  void _showDetailsBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => _RequestDetailBottomSheet(request: request),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
@@ -57,7 +68,7 @@ class HistoryCard extends StatelessWidget {
       ),
       child: InkWell(
         borderRadius: .circular(8),
-        onTap: onTap,
+        onTap: () => _showDetailsBottomSheet(context),
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
@@ -158,6 +169,160 @@ class HistoryCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _RequestDetailBottomSheet extends StatelessWidget {
+  final ConsultationRequest request;
+
+  const _RequestDetailBottomSheet({required this.request});
+
+  (Color bg, Color fg) _getStatusColors(String? status, ColorScheme scheme) {
+    final normalized = (status ?? '').toLowerCase();
+    switch (normalized) {
+      case 'pending':
+        return (scheme.secondaryContainer, scheme.onSecondaryContainer);
+      case 'accepted':
+        return (scheme.primaryContainer, scheme.onPrimaryContainer);
+      case 'completed':
+        return (scheme.tertiaryContainer, scheme.onTertiaryContainer);
+      case 'cancelled':
+        return (scheme.errorContainer, scheme.onErrorContainer);
+      default:
+        return (scheme.surfaceContainerHighest, scheme.onSurfaceVariant);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final (statusBg, statusFg) = _getStatusColors(request.status, scheme);
+    final fileCount = request.fileUrls?.length ?? 0;
+
+    return Padding(
+      padding: const EdgeInsets.all(24),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Drag handle
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: scheme.onSurfaceVariant.withAlpha(80),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+
+          // Header: Status badge & Date
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: statusBg,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  request.status!,
+                  style: textTheme.labelSmall?.copyWith(
+                    color: statusFg,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              Text(
+                DateFormat('MMM d, yyyy · h:mm a').format(request.createdAt),
+                style: textTheme.bodySmall?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // Symptoms Label & Full Content
+          Text(
+            'Symptoms',
+            style: textTheme.labelMedium?.copyWith(
+              color: scheme.onSurfaceVariant,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 8),
+          SelectableText(request.symptoms, style: textTheme.bodyLarge),
+
+          // Doctor Info (if assigned)
+          if (request.doctorName != null && request.doctorName!.isNotEmpty) ...[
+            const SizedBox(height: 20),
+            Text(
+              'Assigned Doctor',
+              style: textTheme.labelMedium?.copyWith(
+                color: scheme.onSurfaceVariant,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Icon(
+                  Icons.medical_services_outlined,
+                  size: 18,
+                  color: scheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  request.doctorName!,
+                  style: TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+          ],
+
+          // Attachments Info (if any)
+          if (fileCount > 0) ...[
+            const SizedBox(height: 20),
+            Text(
+              'Attachments ($fileCount)',
+              style: textTheme.labelMedium?.copyWith(
+                color: scheme.onSurfaceVariant,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              decoration: BoxDecoration(
+                color: scheme.surfaceContainerHighest.withAlpha(120),
+                borderRadius: .circular(8),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.attach_file, size: 18, color: scheme.primary),
+                  const SizedBox(width: 8),
+                  Text(
+                    '$fileCount attachment file${fileCount > 1 ? "s" : ""} uploaded',
+                    style: textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+          ],
+
+          const SizedBox(height: 28),
+        ],
       ),
     );
   }

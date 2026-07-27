@@ -89,7 +89,7 @@ class _RecentActivityState extends State<_RecentActivity> {
       stream: stream,
       builder: ((context, snapshot) {
         if (snapshot.connectionState == .waiting) {
-          return HistorySkeleton(itemCount: 4);
+          return HistorySkeleton(itemCount: 5);
         }
 
         if (snapshot.hasError) return _ErrorActivity();
