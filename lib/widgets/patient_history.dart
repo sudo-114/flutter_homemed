@@ -28,13 +28,21 @@ class _PatientHistoryState extends State<PatientHistory> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
+    return StreamBuilder<List<Map<String, dynamic>>>(
       stream: stream,
       builder: ((_, snapshot) {
-        final data = snapshot.data ?? [];
-        bool hasItems =
-            (snapshot.hasData && snapshot.data!.isNotEmpty) ||
-            (snapshot.connectionState == .waiting);
+        if (snapshot.hasData && snapshot.data != null) {
+          storage.write('consultation_requests', snapshot.data);
+        }
+
+        final cached = ConsultationRequest.getCachedRawRequests();
+        final rawData = snapshot.hasData ? snapshot.data! : cached;
+
+        final isFirstWaiting =
+            snapshot.connectionState == .waiting && rawData.isEmpty;
+        final hasErrorWithNoData = snapshot.hasError && rawData.isEmpty;
+
+        bool hasItems = rawData.isNotEmpty || isFirstWaiting;
 
         return Scaffold(
           appBar: hasItems
@@ -51,15 +59,15 @@ class _PatientHistoryState extends State<PatientHistory> {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Builder(
                 builder: (_) {
-                  if (snapshot.connectionState == .waiting) {
+                  if (isFirstWaiting) {
                     return HistorySkeleton(itemCount: 7);
                   }
 
-                  if (snapshot.hasError) return _ErrorHistory();
+                  if (hasErrorWithNoData) return _ErrorHistory();
 
-                  if (data.isEmpty) return _HistoryEmpty();
+                  if (rawData.isEmpty) return _HistoryEmpty();
 
-                  final request = data
+                  final request = rawData
                       .map((r) => ConsultationRequest.fromMap(r))
                       .toList();
 

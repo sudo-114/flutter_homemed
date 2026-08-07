@@ -80,24 +80,32 @@ class _RecentActivityState extends State<_RecentActivity> {
         .stream(primaryKey: ['id'])
         .eq('patient_id', userId)
         .order('created_at')
-        .take(5);
+        .take(4);
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
+    return StreamBuilder<List<Map<String, dynamic>>>(
       stream: stream,
       builder: ((context, snapshot) {
-        if (snapshot.connectionState == .waiting) {
+        final cached = ConsultationRequest.getCachedRawRequests();
+        final rawData = (snapshot.hasData ? snapshot.data! : cached)
+            .take(4)
+            .toList();
+
+        final isFirstWaiting =
+            snapshot.connectionState == .waiting && rawData.isEmpty;
+        final hasErrorWithNoData = snapshot.hasError && rawData.isEmpty;
+
+        if (isFirstWaiting) {
           return HistorySkeleton(itemCount: 5);
         }
 
-        if (snapshot.hasError) return _ErrorActivity();
+        if (hasErrorWithNoData) return _ErrorActivity();
 
-        final data = snapshot.data ?? [];
-        if (data.isEmpty) return _EmptyActivity();
+        if (rawData.isEmpty) return _EmptyActivity();
 
-        final request = data
+        final request = rawData
             .map((r) => ConsultationRequest.fromMap(r))
             .toList();
 

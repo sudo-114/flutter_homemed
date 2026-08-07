@@ -41,6 +41,7 @@ class HistoryCard extends StatelessWidget {
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
+      showDragHandle: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -59,7 +60,7 @@ class HistoryCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: scheme.surfaceContainerHigh.withAlpha(200),
+        color: scheme.surfaceContainer,
         borderRadius: .circular(8),
         border: Border.all(
           color: scheme.outlineVariant.withAlpha(80),
@@ -95,6 +96,7 @@ class HistoryCard extends StatelessWidget {
                       ),
                     ),
                   ),
+
                   Row(
                     children: [
                       Text(
@@ -203,24 +205,11 @@ class _RequestDetailBottomSheet extends StatelessWidget {
     final fileCount = request.fileUrls?.length ?? 0;
 
     return Padding(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Drag handle
-          Center(
-            child: Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: scheme.onSurfaceVariant.withAlpha(80),
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-
           // Header: Status badge & Date
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,

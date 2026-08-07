@@ -1,3 +1,5 @@
+import 'package:homemed/main.dart';
+
 class ConsultationRequest {
   final String id;
   final String symptoms;
@@ -45,5 +47,13 @@ class ConsultationRequest {
       doctorName: map['doctor_name'],
       createdAt: DateTime.parse(map['created_at']),
     );
+  }
+
+  static List<Map<String, dynamic>> getCachedRawRequests() {
+    final raw = storage.read('consultation_requests');
+    if (raw is List) {
+      return raw.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+    }
+    return [];
   }
 }

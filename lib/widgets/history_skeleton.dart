@@ -19,8 +19,11 @@ class HistorySkeleton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Skeletonizer(
       enabled: true,
+      containersColor: scheme.surfaceContainer,
       child: ListView.builder(
         itemCount: itemCount,
         itemBuilder: ((context, index) {
