@@ -12,24 +12,10 @@ class PatientHistory extends StatefulWidget {
 }
 
 class _PatientHistoryState extends State<PatientHistory> {
-  late final String userId;
-  late final Stream<List<Map<String, dynamic>>> stream;
-
-  @override
-  void initState() {
-    super.initState();
-    userId = supabase.auth.currentUser!.id;
-    stream = supabase
-        .from('consultation_requests')
-        .stream(primaryKey: ['id'])
-        .eq('patient_id', userId as Object)
-        .order('created_at');
-  }
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Map<String, dynamic>>>(
-      stream: stream,
+      stream: ConsultationRequest.stream(),
       builder: ((_, snapshot) {
         if (snapshot.hasData && snapshot.data != null) {
           storage.write('consultation_requests', snapshot.data);

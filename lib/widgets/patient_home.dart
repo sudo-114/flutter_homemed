@@ -67,26 +67,10 @@ class _RecentActivity extends StatefulWidget {
 }
 
 class _RecentActivityState extends State<_RecentActivity> {
-  late final String userId;
-  late final Stream<List<Map<String, dynamic>>> stream;
-
-  @override
-  void initState() {
-    super.initState();
-
-    userId = supabase.auth.currentUser!.id;
-    stream = supabase
-        .from('consultation_requests')
-        .stream(primaryKey: ['id'])
-        .eq('patient_id', userId)
-        .order('created_at')
-        .take(4);
-  }
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Map<String, dynamic>>>(
-      stream: stream,
+      stream: ConsultationRequest.stream(),
       builder: ((context, snapshot) {
         final cached = ConsultationRequest.getCachedRawRequests();
         final rawData = (snapshot.hasData ? snapshot.data! : cached)

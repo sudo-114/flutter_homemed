@@ -56,4 +56,16 @@ class ConsultationRequest {
     }
     return [];
   }
+
+  static Stream<List<Map<String, dynamic>>> stream() {
+    late final userId = supabase.auth.currentUser!.id;
+
+    late final Stream<List<Map<String, dynamic>>> stream = supabase
+        .from('consultation_requests')
+        .stream(primaryKey: ['id'])
+        .eq('patient_id', userId as Object)
+        .order('created_at');
+
+    return stream;
+  }
 }
