@@ -1,74 +1,92 @@
-CREATE TYPE user_role AS ENUM ('patient', 'doctor');
-CREATE TYPE user_gender AS ENUM ('male', 'female');
+create type user_role as ENUM('patient', 'doctor');
 
-CREATE TABLE profiles (
-    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-    name TEXT,
-    phone TEXT UNIQUE NOT NULL,
-    dob TEXT,
-    gender user_gender,
-    role user_role NOT NULL,
-    specialty TEXT,
-    license  TEXT,
-    xp_years TEXT,
-    created_at TIMESTAMPTZ DEFAULT now()
+create type user_gender as ENUM('male', 'female');
+
+create table profiles (
+  id UUID primary key references auth.users (id) on delete CASCADE,
+  name TEXT,
+  phone TEXT unique not null,
+  dob TEXT,
+  gender user_gender,
+  role user_role not null,
+  specialty TEXT,
+  license TEXT,
+  xp_years TEXT,
+  created_at TIMESTAMPTZ default now()
 );
 
 -- Enable RLS
-ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+alter table profiles ENABLE row LEVEL SECURITY;
 
 -- Allow users to select their own profile
-CREATE POLICY "Profiles are viewable by owners."
-    ON profiles
-    FOR SELECT
-    USING (id = auth.uid());
+create policy "Profiles are viewable by owners." on profiles for
+select
+  using (id = auth.uid ());
 
 -- Allow users to update their own profile
-CREATE POLICY "Profiles are updatable by owners."
-    ON profiles
-    FOR UPDATE
-    USING (id = auth.uid());
+create policy "Profiles are updatable by owners." on profiles
+for update
+  using (id = auth.uid ());
 
 -- Allow users to delete their own profile
-CREATE POLICY "Profiles are deletable by owners."
-    ON profiles
-    FOR DELETE
-    USING (id = auth.uid());
+create policy "Profiles are deletable by owners." on profiles for DELETE using (id = auth.uid ());
 
 -- Allow authenticated users to insert their own profile
-CREATE POLICY "Profiles are insertable by authenticated users."
-    ON profiles
-    FOR INSERT
-    WITH CHECK (id = auth.uid());
+create policy "Profiles are insertable by authenticated users." on profiles for INSERT
+with
+  check (id = auth.uid ());
 
-CREATE TYPE request_status AS ENUM ('pending', 'accepted', 'completed', 'cancelled');
+create type request_status as ENUM('pending', 'accepted', 'completed', 'cancelled');
 
-CREATE TABLE consultation_requests (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    patient_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
-    symptoms TEXT NOT NULL,
-    file_urls TEXT[] DEFAULT '{}',
-    status request_status NOT NULL DEFAULT 'pending',
-    created_at TIMESTAMPTZ DEFAULT now()
+create table consultation_requests (
+  id UUID primary key default gen_random_uuid (),
+  patient_id UUID not null references profiles (id) on delete CASCADE,
+  symptoms TEXT not null,
+  file_urls text[] default '{}',
+  status request_status not null default 'pending',
+  created_at TIMESTAMPTZ default now()
 );
 
 -- Enable RLS
-ALTER TABLE consultation_requests ENABLE ROW LEVEL SECURITY;
+alter table consultation_requests ENABLE row LEVEL SECURITY;
 
 -- Patients can view their own requests
-CREATE POLICY "Patients can view their own requests."
-    ON consultation_requests
-    FOR SELECT
-    USING (patient_id = auth.uid());
+create policy "Patients can view their own requests." on consultation_requests for
+select
+  using (patient_id = auth.uid ());
 
 -- Patients can insert their own requests
-CREATE POLICY "Patients can insert their own requests."
-    ON consultation_requests
-    FOR INSERT
-    WITH CHECK (patient_id = auth.uid());
+create policy "Patients can insert their own requests." on consultation_requests for INSERT
+with
+  check (patient_id = auth.uid ());
 
 -- Patients can cancel their own requests
-CREATE POLICY "Patients can update their own requests."
-    ON consultation_requests
-    FOR UPDATE
-    USING (patient_id = auth.uid());
+create policy "Patients can update their own requests." on consultation_requests
+for update
+  using (patient_id = auth.uid ());
+
+-- Index patient_id and created_at columns
+create index idx_consultation_requests_patient_created on public.consultation_requests (patient_id, created_at desc);
+
+-- Created consultion_files supabase bucket
+insert into
+  storage.buckets (id, name, public)
+values
+  ('consultation-files', 'consultation-files', false)
+on conflict (id) do nothing;
+
+-- Patients can only access files inside their own folder (first path segment = their user id)
+create policy "patients_read_own_files" on storage.objects for
+select
+  to authenticated using (
+    bucket_id = 'consultation-files'
+    and (storage.foldername (name)) [1] = auth.uid ()::text
+  );
+
+-- Patients can only upload into their own folder
+create policy "patients_upload_own_files" on storage.objects for insert to authenticated
+with
+  check (
+    bucket_id = 'consultation-files'
+    and (storage.foldername (name)) [1] = auth.uid ()::text
+  );
