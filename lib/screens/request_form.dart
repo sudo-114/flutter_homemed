@@ -111,9 +111,7 @@ class _RequestFormState extends State<RequestForm> {
           fileOptions: const FileOptions(upsert: true),
         );
 
-    return supabase.storage
-        .from('consultation-files')
-        .createSignedUrl(storagePath, 3600);
+    return storagePath;
   }
 
   // ── Submit ────────────────────────────────────────────────────────────────
