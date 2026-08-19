@@ -1,6 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:homemed/model/consultation_request.dart';
+import 'package:homemed/model/patient_file.dart';
 import 'package:intl/intl.dart';
+import 'package:skeletonizer/skeletonizer.dart';
+
+(Color bg, Color fg) _getStatusColors(String? status, ColorScheme scheme) {
+  final normalized = (status ?? '').toLowerCase();
+  switch (normalized) {
+    case 'pending':
+      return (scheme.secondaryContainer, scheme.onSecondaryContainer);
+    case 'accepted':
+      return (scheme.primaryContainer, scheme.onPrimaryContainer);
+    case 'completed':
+      return (scheme.tertiaryContainer, scheme.onTertiaryContainer);
+    case 'cancelled':
+      return (scheme.errorContainer, scheme.onErrorContainer);
+    default:
+      return (scheme.surfaceContainerHighest, scheme.onSurfaceVariant);
+  }
+}
 
 class HistoryCard extends StatelessWidget {
   final ConsultationRequest request;
@@ -20,22 +38,6 @@ class HistoryCard extends StatelessWidget {
     }
   }
 
-  (Color bg, Color fg) _getStatusColors(String? status, ColorScheme scheme) {
-    final normalized = (status ?? '').toLowerCase();
-    switch (normalized) {
-      case 'pending':
-        return (scheme.secondaryContainer, scheme.onSecondaryContainer);
-      case 'accepted':
-        return (scheme.primaryContainer, scheme.onPrimaryContainer);
-      case 'completed':
-        return (scheme.tertiaryContainer, scheme.onTertiaryContainer);
-      case 'cancelled':
-        return (scheme.errorContainer, scheme.onErrorContainer);
-      default:
-        return (scheme.surfaceContainerHighest, scheme.onSurfaceVariant);
-    }
-  }
-
   void _showDetailsBottomSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
@@ -43,7 +45,7 @@ class HistoryCard extends StatelessWidget {
       useSafeArea: true,
       showDragHandle: true,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) => _RequestDetailBottomSheet(request: request),
     );
@@ -79,24 +81,11 @@ class HistoryCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: statusBg,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      request.status ?? 'Pending',
-                      style: textTheme.labelSmall?.copyWith(
-                        color: statusFg,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
+                  _StatusPill(
+                    statusFg: statusFg,
+                    statusBg: statusBg,
+                    status: request.status!,
                   ),
-
                   Row(
                     children: [
                       Text(
@@ -181,28 +170,15 @@ class _RequestDetailBottomSheet extends StatelessWidget {
 
   const _RequestDetailBottomSheet({required this.request});
 
-  (Color bg, Color fg) _getStatusColors(String? status, ColorScheme scheme) {
-    final normalized = (status ?? '').toLowerCase();
-    switch (normalized) {
-      case 'pending':
-        return (scheme.secondaryContainer, scheme.onSecondaryContainer);
-      case 'accepted':
-        return (scheme.primaryContainer, scheme.onPrimaryContainer);
-      case 'completed':
-        return (scheme.tertiaryContainer, scheme.onTertiaryContainer);
-      case 'cancelled':
-        return (scheme.errorContainer, scheme.onErrorContainer);
-      default:
-        return (scheme.surfaceContainerHighest, scheme.onSurfaceVariant);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final textTheme = Theme.of(context).textTheme;
     final (statusBg, statusFg) = _getStatusColors(request.status, scheme);
-    final fileCount = request.fileUrls?.length ?? 0;
+
+    final fileUrls = request.fileUrls ?? [];
+    final fileCount = fileUrls.length;
+    bool hasImage = fileUrls.toString().contains('images');
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -214,22 +190,10 @@ class _RequestDetailBottomSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: statusBg,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  request.status!,
-                  style: textTheme.labelSmall?.copyWith(
-                    color: statusFg,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
+              _StatusPill(
+                statusFg: statusFg,
+                statusBg: statusBg,
+                status: request.status!,
               ),
               Text(
                 DateFormat('MMM d, yyyy · h:mm a').format(request.createdAt),
@@ -290,28 +254,144 @@ class _RequestDetailBottomSheet extends StatelessWidget {
                 fontWeight: FontWeight.bold,
               ),
             ),
-            const SizedBox(height: 8),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: scheme.surfaceContainerHighest.withAlpha(120),
-                borderRadius: .circular(8),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.attach_file, size: 18, color: scheme.primary),
-                  const SizedBox(width: 8),
-                  Text(
-                    '$fileCount attachment file${fileCount > 1 ? "s" : ""} uploaded',
-                    style: textTheme.bodyMedium,
-                  ),
-                ],
+            const SizedBox(height: 12),
+
+            SizedBox(
+              height: hasImage ? 98 : 0,
+              child: ListView(
+                scrollDirection: .horizontal,
+                children: fileUrls.map((file) {
+                  if (PatientFile.type(file) == 'images') {
+                    return _ImageCard(image: file);
+                  }
+                  return const SizedBox.shrink();
+                }).toList(),
               ),
             ),
           ],
-
-          const SizedBox(height: 28),
+          const SizedBox(height: 16),
         ],
+      ),
+    );
+  }
+}
+
+class _StatusPill extends StatelessWidget {
+  final Color statusFg;
+  final Color statusBg;
+  final String status;
+
+  const _StatusPill({
+    required this.statusFg,
+    required this.statusBg,
+    required this.status,
+  });
+
+  @override
+  Widget build(context) {
+    final text = Theme.of(context).textTheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+      decoration: BoxDecoration(
+        color: statusBg,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        status,
+        style: text.labelSmall?.copyWith(
+          color: statusFg,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+class _ImageCard extends StatelessWidget {
+  final String image;
+  const _ImageCard({required this.image});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: PatientFile.url(image),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == .waiting) {
+          return _ImageLoading();
+        }
+        if (snapshot.hasError) {
+          final err = snapshot.error.toString();
+          debugPrint('Failed to load image: $err');
+
+          return _ImageError();
+        }
+        if (snapshot.hasData && snapshot.data != '') {
+          return Padding(
+            padding: const .only(right: 8),
+            child: ClipRRect(
+              borderRadius: .circular(8),
+              child: Image.network(
+                snapshot.data!,
+                width: 96,
+                height: 96,
+                fit: .cover,
+                errorBuilder: ((context, error, _) {
+                  debugPrint(error.toString());
+                  return _ImageError();
+                }),
+                frameBuilder: ((context, child, frame, _) {
+                  if (frame == null) return _ImageLoading();
+                  return child;
+                }),
+                loadingBuilder: ((context, child, loadingProgress) {
+                  if (loadingProgress == null) return child;
+
+                  if (loadingProgress.cumulativeBytesLoaded !=
+                      loadingProgress.expectedTotalBytes) {
+                    return _ImageLoading();
+                  } else {
+                    return _ImageLoading();
+                  }
+                }),
+              ),
+            ),
+          );
+        } else {
+          return _ImageError();
+        }
+      },
+    );
+  }
+}
+
+class _ImageLoading extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const .only(right: 8),
+      child: Skeletonizer(
+        child: Bone.square(size: 96, borderRadius: .circular(8)),
+      ),
+    );
+  }
+}
+
+class _ImageError extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Container(
+      color: scheme.errorContainer,
+      height: 96,
+      width: 96,
+      child: Center(
+        child: Icon(
+          Icons.warning_amber_rounded,
+          size: 42,
+          color: scheme.onErrorContainer.withAlpha(200),
+        ),
       ),
     );
   }
