@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:homemed/model/consultation_request.dart';
 import 'package:homemed/model/patient_file.dart';
 import 'package:intl/intl.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 (Color bg, Color fg) _getStatusColors(String? status, ColorScheme scheme) {
@@ -179,6 +180,7 @@ class _RequestDetailBottomSheet extends StatelessWidget {
     final fileUrls = request.fileUrls ?? [];
     final fileCount = fileUrls.length;
     bool hasImage = fileUrls.toString().contains('images');
+    bool hasAudio = fileUrls.toString().contains('audio');
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -267,6 +269,19 @@ class _RequestDetailBottomSheet extends StatelessWidget {
                   return const SizedBox.shrink();
                 }).toList(),
               ),
+            ),
+
+            (hasAudio && hasImage)
+                ? const SizedBox(height: 16)
+                : const SizedBox.shrink(),
+
+            Column(
+              children: fileUrls.map((file) {
+                if (PatientFile.type(file) == 'audio') {
+                  return _AudioCard(audio: file);
+                }
+                return const SizedBox.shrink();
+              }).toList(),
             ),
           ],
           const SizedBox(height: 16),
@@ -392,6 +407,190 @@ class _ImageError extends StatelessWidget {
           size: 42,
           color: scheme.onErrorContainer.withAlpha(200),
         ),
+      ),
+    );
+  }
+}
+
+class _AudioCard extends StatelessWidget {
+  final String audio;
+  const _AudioCard({required this.audio});
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: PatientFile.url(audio),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == .waiting) return _AudioLoading();
+
+        if (snapshot.hasData && snapshot.data != '') {
+          return _PlayAudio(audio: snapshot.data!);
+        }
+        if (snapshot.hasError) {
+          String err = snapshot.error.toString();
+          debugPrint('Failed to get audio link: $err');
+
+          debugPrint(snapshot.error.toString());
+          return _AudioError();
+        }
+
+        return SizedBox();
+      },
+    );
+  }
+}
+
+class _PlayAudio extends StatefulWidget {
+  final String audio;
+  const _PlayAudio({required this.audio});
+
+  @override
+  State<_PlayAudio> createState() => _PlayAudioState();
+}
+
+class _PlayAudioState extends State<_PlayAudio> {
+  late final AudioPlayer _player;
+  bool _isLoading = true;
+  bool _hasError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _player = AudioPlayer();
+    _initAudio();
+  }
+
+  Future<void> _initAudio() async {
+    _player.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed) {
+        _player.seek(Duration.zero);
+        _player.pause();
+      }
+    });
+
+    try {
+      await _player.setUrl(widget.audio);
+      if (mounted) setState(() => _isLoading = false);
+    } catch (err) {
+      if (mounted) setState(() => _hasError = true);
+      debugPrint('AudioSource failed: $err');
+    }
+  }
+
+  @override
+  void dispose() {
+    _player.dispose();
+    super.dispose();
+  }
+
+  String _formatDuration(Duration duration) {
+    final mm = duration.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final ss = duration.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$mm:$ss';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    if (_hasError) return _AudioError();
+    if (_isLoading) return _AudioLoading();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: scheme.surfaceDim,
+      ),
+      child: Row(
+        children: [
+          StreamBuilder<PlayerState>(
+            stream: _player.playerStateStream,
+            builder: (context, snapshot) {
+              final playing = snapshot.data?.playing ?? false;
+              return IconButton.filled(
+                onPressed: () => playing ? _player.pause() : _player.play(),
+                icon: Icon(playing ? Icons.pause : Icons.play_arrow_rounded),
+              );
+            },
+          ),
+          Expanded(
+            child: StreamBuilder<Duration>(
+              stream: _player.positionStream,
+              builder: (context, snapshot) {
+                final position = snapshot.data ?? Duration.zero;
+                final total = _player.duration ?? Duration.zero;
+                final progress = total.inMilliseconds == 0
+                    ? 0.0
+                    : position.inMilliseconds / total.inMilliseconds;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        trackHeight: 5,
+                        inactiveTrackColor: scheme.primary.withAlpha(50),
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 6,
+                        ),
+                      ),
+                      child: Slider(
+                        value: progress.clamp(0.0, 1.0),
+                        onChanged: (value) => _player.seek(total * value),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 4),
+                      child: Text(
+                        '${_formatDuration(position)} / ${_formatDuration(total)}',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _AudioLoading extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Skeletonizer(
+      child: Bone(width: .infinity, height: 70, borderRadius: .circular(8)),
+    );
+  }
+}
+
+class _AudioError extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final text = Theme.of(context).textTheme;
+
+    return Container(
+      padding: .symmetric(horizontal: 12, vertical: 16),
+      width: .infinity,
+      decoration: BoxDecoration(
+        color: scheme.errorContainer,
+        borderRadius: .circular(8),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline_rounded, color: scheme.onErrorContainer),
+          const SizedBox(width: 8),
+          Text(
+            'Failed to load voice note',
+            style: text.bodySmall?.copyWith(color: scheme.onErrorContainer),
+          ),
+        ],
       ),
     );
   }
