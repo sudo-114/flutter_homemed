@@ -7,7 +7,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Homemed</string>
+	<string>HomeMed</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -66,5 +66,15 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>tel</string>
+	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>HomeMed needs microphone access to record voice notes for medical requests.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>HomeMed needs photo library access to attach photos to medical requests.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>HomeMed needs camera access to take photos for medical requests.</string>
 </dict>
 </plist>

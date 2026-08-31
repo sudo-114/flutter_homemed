@@ -1,16 +1,23 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:get_storage/get_storage.dart';
 import 'package:go_router/go_router.dart';
-import 'package:homemed/screens/auth/complete_profile.dart';
-import 'package:homemed/screens/auth/register.dart';
-import 'package:homemed/screens/auth/verify.dart';
-import 'package:homemed/screens/welcome.dart';
+import 'package:homemed/features/auth/complete_profile.dart';
+import 'package:homemed/features/auth/login.dart';
+import 'package:homemed/features/auth/register.dart';
+import 'package:homemed/features/auth/verify.dart';
+import 'package:homemed/features/patient/help_support.dart';
+import 'package:homemed/features/patient/tab_route.dart';
+import 'package:homemed/features/patient/widgets/request_form.dart';
+import 'package:homemed/features/welcome.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'dart:async';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  await GetStorage.init();
   await dotenv.load(fileName: '.env.local');
   final supabaseUrl = dotenv.env['SUPABASE_URL'];
   final supabaseKey = dotenv.env['SUPABASE_KEY'];
@@ -21,6 +28,7 @@ void main() async {
 }
 
 final supabase = Supabase.instance.client;
+final storage = GetStorage();
 
 // Helper to turn a Stream into a ChangeNotifier for GoRouter's refreshListenable
 class GoRouterRefreshStream extends ChangeNotifier {
@@ -46,49 +54,83 @@ final GoRouter _router = GoRouter(
   redirect: (context, state) async {
     final user = supabase.auth.currentUser;
     final loggedIn = user != null;
-    final goingToComplete = state.matchedLocation == '/complete-profile';
+    final location = state.matchedLocation;
     final goingToAuthPages =
-        state.matchedLocation == '/' ||
-        state.matchedLocation == '/register' ||
-        state.matchedLocation == '/verify';
+        location == '/' ||
+        location == '/login' ||
+        location == '/register' ||
+        location == '/verify';
+    final goingToComplete = location == '/complete-profile';
 
-    // If not logged in and trying to access complete-profile, send to register
-    if (!loggedIn && goingToComplete) return '/register';
+    if (!loggedIn) {
+      if (goingToComplete) return '/register';
+      if (location == '/' && storage.read('not-first') == true) return '/login';
+      return null;
+    }
 
-    // If logged in and on auth pages, send to complete-profile
-    if (loggedIn) {
+    // --- USER IS LOGGED IN ---
+    String? role = storage.read('role');
+
+    // If role is not cached in storage, fetch once from Supabase (with timeout)
+    if (role == null) {
       try {
         final res = await supabase
             .from('profiles')
-            .select('role')
+            .select(
+              'name, phone, role, dob, gender, specialty, license, xp_years',
+            )
             .eq('id', user.id)
-            .maybeSingle();
-        final hasProfile = res != null && res['role'] != null;
+            .maybeSingle()
+            .timeout(const Duration(seconds: 3));
 
-        // If logged in and on auth pages, send to home or complete-profile depending on profile
-        if (goingToAuthPages) {
-          return hasProfile ? '/home' : '/complete-profile';
+        if (res != null && res['role'] != null) {
+          role = res['role'] as String;
+          storage.write('role', role);
+          storage.write('name', res['name']);
+          storage.write('phone', res['phone']);
+
+          if (role == 'doctor') {
+            storage.write('specialty', res['specialty']);
+            storage.write('license', res['license']);
+            storage.write('xp_years', res['xp_years']);
+          } else if (role == 'patient') {
+            storage.write('dob', res['dob']);
+            storage.write('gender', res['gender']);
+          }
         }
-
-        // If logged in and trying to access complete-profile but profile exists, send to home
-        if (goingToComplete && hasProfile) return '/home';
-      } catch (e) {
-        // On error, fall back to complete-profile when on auth pages
-        if (goingToAuthPages) return '/complete-profile';
+      } catch (_) {
+        // Ignore network error/timeout when offline
       }
     }
 
-    // No-op
+    // If profile is incomplete, send to complete-profile
+    if (role == null) {
+      return goingToComplete ? null : '/complete-profile';
+    }
+
+    // User has a role: redirect away from auth/complete/home to their dashboard
+    final dashboard = (role == 'doctor') ? '/doctor' : '/patient';
+
+    if (goingToAuthPages || goingToComplete || location == '/home') {
+      return dashboard;
+    }
+
     return null;
   },
   routes: [
     GoRoute(path: '/', builder: (context, state) => const Welcome()),
     GoRoute(path: '/register', builder: (_, _) => const Register()),
+    GoRoute(path: '/login', builder: (_, _) => const Login()),
     GoRoute(path: '/verify', builder: (_, _) => const Verify()),
     GoRoute(
       path: '/complete-profile',
       builder: (_, _) => const CompleteProfile(),
     ),
+    GoRoute(path: '/home', builder: (_, _) => const SizedBox.shrink()),
+    GoRoute(path: '/request-form', builder: (_, _) => const RequestForm()),
+    GoRoute(path: '/help', builder: (_, _) => const PatientHelpSupport()),
+
+    patientTabRoute,
   ],
 );
 
@@ -106,6 +148,12 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Inter',
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
+            minimumSize: Size(.infinity, 56),
+            shape: RoundedRectangleBorder(borderRadius: .circular(8)),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
             minimumSize: Size(.infinity, 56),
             shape: RoundedRectangleBorder(borderRadius: .circular(8)),
           ),
