@@ -6,6 +6,10 @@ import 'package:homemed/widgets/history_card.dart';
 import 'package:homemed/widgets/history_skeleton.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+final ValueNotifier<String> patientNameNotifier = ValueNotifier(
+  storage.read('name') ?? '',
+);
+
 class PatientHome extends StatelessWidget {
   const PatientHome({super.key});
 
@@ -13,9 +17,6 @@ class PatientHome extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
     final colorscheme = Theme.of(context).colorScheme;
-    final String userName = storage.read('name');
-    final nameSplit = userName.split(' ');
-    final name = nameSplit.firstOrNull;
 
     return Scaffold(
       body: SafeArea(
@@ -24,10 +25,7 @@ class PatientHome extends StatelessWidget {
           child: Column(
             crossAxisAlignment: .start,
             children: [
-              Text(
-                'Hello, $name',
-                style: textTheme.headlineSmall?.copyWith(fontWeight: .bold),
-              ),
+              _UserName(),
               const SizedBox(height: 4),
               Text(
                 'How can we help you today?',
@@ -57,6 +55,24 @@ class PatientHome extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _UserName extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<String>(
+      valueListenable: patientNameNotifier,
+      builder: (context, userName, _) {
+        final name = userName.split(' ').firstOrNull;
+        return Text(
+          'Hello, $name',
+          style: Theme.of(
+            context,
+          ).textTheme.headlineSmall?.copyWith(fontWeight: .bold),
+        );
+      },
     );
   }
 }
