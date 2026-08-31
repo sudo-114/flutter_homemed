@@ -4,6 +4,7 @@ import 'package:homemed/main.dart';
 import 'package:date_field/date_field.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:homemed/widgets/field_label.dart';
+import 'package:homemed/widgets/patient_help_support.dart';
 import 'package:homemed/widgets/patient_home.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -99,25 +100,32 @@ class _PatientProfileState extends State<PatientProfile> {
                     _SettingTile(
                       title: 'Notifications',
                       icon: Icons.notifications_outlined,
+                      // TODO: show push notifications and their read state
                       onTap: () => debugPrint('Notification'),
                     ),
                     const Divider(),
                     _SettingTile(
                       title: 'Terms of Service',
                       icon: Icons.description_outlined,
+                      // TODO: wire ToS domain/content ones it exist
                       onTap: () => debugPrint('Terms'),
                     ),
                     const Divider(),
                     _SettingTile(
                       title: 'Privacy Policy',
                       icon: Icons.privacy_tip_outlined,
+                      // TODO: wire Privacy Policy domain/content ones it exist
                       onTap: () => debugPrint('Privacy'),
                     ),
                     const Divider(),
                     _SettingTile(
                       title: 'Help & Support',
                       icon: Icons.help_outline,
-                      onTap: () => debugPrint('Help'),
+                      onTap: () => Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => const PatientHelpSupport(),
+                        ),
+                      ),
                     ),
                   ],
                 ),

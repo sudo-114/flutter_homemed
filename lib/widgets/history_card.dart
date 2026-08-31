@@ -189,6 +189,7 @@ class _RequestDetailBottomSheet extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Header: Status badge & Date
+          // TODO: edit and delete requests based on status
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
