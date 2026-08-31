@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:go_router/go_router.dart';
 import 'package:homemed/main.dart';
+import 'package:homemed/shared/widgets/field_label.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:homemed/widgets/field_label.dart';
 
 class DoctorForm extends StatefulWidget {
   final String? phone;

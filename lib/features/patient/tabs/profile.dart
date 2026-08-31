@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:homemed/features/patient/tabs/home.dart';
 import 'package:homemed/main.dart';
 import 'package:date_field/date_field.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:homemed/widgets/field_label.dart';
-import 'package:homemed/widgets/patient_help_support.dart';
-import 'package:homemed/widgets/patient_home.dart';
+import 'package:homemed/shared/widgets/field_label.dart';
 import 'package:intl/intl.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -121,11 +120,7 @@ class _PatientProfileState extends State<PatientProfile> {
                     _SettingTile(
                       title: 'Help & Support',
                       icon: Icons.help_outline,
-                      onTap: () => Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (_) => const PatientHelpSupport(),
-                        ),
-                      ),
+                      onTap: () => context.push('/help'),
                     ),
                   ],
                 ),

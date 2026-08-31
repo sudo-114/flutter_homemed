@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:homemed/widgets/patient_history.dart';
-import 'package:homemed/widgets/patient_home.dart';
-import 'package:homemed/widgets/patient_profile.dart';
+import 'package:homemed/features/patient/tabs/history.dart';
+import 'package:homemed/features/patient/tabs/home.dart';
+import 'package:homemed/features/patient/tabs/profile.dart';
 
 final patientTabRoute = StatefulShellRoute.indexedStack(
   builder: ((_, _, navigationShell) {

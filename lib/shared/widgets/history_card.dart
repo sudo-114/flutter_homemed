@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:homemed/model/consultation_request.dart';
-import 'package:homemed/model/patient_file.dart';
+import 'package:homemed/shared/models/patient_file.dart';
+import 'package:homemed/shared/models/consultation_request.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:skeletonizer/skeletonizer.dart';
@@ -265,7 +265,10 @@ class _RequestDetailBottomSheet extends StatelessWidget {
                 scrollDirection: .horizontal,
                 children: fileUrls.map((file) {
                   if (PatientFile.type(file) == 'images') {
-                    return _ImageCard(image: file);
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: _ImageCard(image: file),
+                    );
                   }
                   return const SizedBox.shrink();
                 }).toList(),
@@ -343,34 +346,31 @@ class _ImageCard extends StatelessWidget {
           return _ImageError();
         }
         if (snapshot.hasData && snapshot.data != '') {
-          return Padding(
-            padding: const .only(right: 8),
-            child: ClipRRect(
-              borderRadius: .circular(8),
-              child: Image.network(
-                snapshot.data!,
-                width: 96,
-                height: 96,
-                fit: .cover,
-                errorBuilder: ((context, error, _) {
-                  debugPrint(error.toString());
-                  return _ImageError();
-                }),
-                frameBuilder: ((context, child, frame, _) {
-                  if (frame == null) return _ImageLoading();
-                  return child;
-                }),
-                loadingBuilder: ((context, child, loadingProgress) {
-                  if (loadingProgress == null) return child;
+          return ClipRRect(
+            borderRadius: .circular(8),
+            child: Image.network(
+              snapshot.data!,
+              width: 96,
+              height: 96,
+              fit: .cover,
+              errorBuilder: ((context, error, _) {
+                debugPrint(error.toString());
+                return _ImageError();
+              }),
+              frameBuilder: ((context, child, frame, _) {
+                if (frame == null) return _ImageLoading();
+                return child;
+              }),
+              loadingBuilder: ((context, child, loadingProgress) {
+                if (loadingProgress == null) return child;
 
-                  if (loadingProgress.cumulativeBytesLoaded !=
-                      loadingProgress.expectedTotalBytes) {
-                    return _ImageLoading();
-                  } else {
-                    return _ImageLoading();
-                  }
-                }),
-              ),
+                if (loadingProgress.cumulativeBytesLoaded !=
+                    loadingProgress.expectedTotalBytes) {
+                  return _ImageLoading();
+                } else {
+                  return _ImageLoading();
+                }
+              }),
             ),
           );
         } else {
@@ -384,11 +384,8 @@ class _ImageCard extends StatelessWidget {
 class _ImageLoading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const .only(right: 8),
-      child: Skeletonizer(
-        child: Bone.square(size: 96, borderRadius: .circular(8)),
-      ),
+    return Skeletonizer(
+      child: Bone.square(size: 96, borderRadius: .circular(8)),
     );
   }
 }
@@ -399,7 +396,10 @@ class _ImageError extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
 
     return Container(
-      color: scheme.errorContainer,
+      decoration: BoxDecoration(
+        color: scheme.errorContainer,
+        borderRadius: .circular(8),
+      ),
       height: 96,
       width: 96,
       child: Center(

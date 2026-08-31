@@ -72,7 +72,7 @@ class PatientHelpSupport extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: scheme.surfaceContainerHighest,
+              color: scheme.surfaceContainer,
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(

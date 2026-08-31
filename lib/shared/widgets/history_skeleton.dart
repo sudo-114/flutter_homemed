@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:homemed/model/consultation_request.dart';
-import 'package:homemed/widgets/history_card.dart';
+import 'package:homemed/shared/models/consultation_request.dart';
+import 'package:homemed/shared/widgets/history_card.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 class HistorySkeleton extends StatelessWidget {

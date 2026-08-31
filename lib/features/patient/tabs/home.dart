@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:homemed/main.dart';
-import 'package:homemed/model/consultation_request.dart';
-import 'package:homemed/widgets/history_card.dart';
-import 'package:homemed/widgets/history_skeleton.dart';
+import 'package:homemed/shared/models/consultation_request.dart';
+import 'package:homemed/shared/widgets/history_card.dart';
+import 'package:homemed/shared/widgets/history_skeleton.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 final ValueNotifier<String> patientNameNotifier = ValueNotifier(

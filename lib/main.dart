@@ -4,13 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:go_router/go_router.dart';
-import 'package:homemed/screens/auth/complete_profile.dart';
-import 'package:homemed/screens/auth/login.dart';
-import 'package:homemed/screens/auth/register.dart';
-import 'package:homemed/screens/auth/verify.dart';
-import 'package:homemed/screens/patient.dart';
-import 'package:homemed/screens/request_form.dart';
-import 'package:homemed/screens/welcome.dart';
+import 'package:homemed/features/auth/complete_profile.dart';
+import 'package:homemed/features/auth/login.dart';
+import 'package:homemed/features/auth/register.dart';
+import 'package:homemed/features/auth/verify.dart';
+import 'package:homemed/features/patient/help_support.dart';
+import 'package:homemed/features/patient/tab_route.dart';
+import 'package:homemed/features/patient/widgets/request_form.dart';
+import 'package:homemed/features/welcome.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -127,6 +128,7 @@ final GoRouter _router = GoRouter(
     ),
     GoRoute(path: '/home', builder: (_, _) => const SizedBox.shrink()),
     GoRoute(path: '/request-form', builder: (_, _) => const RequestForm()),
+    GoRoute(path: '/help', builder: (_, _) => const PatientHelpSupport()),
 
     patientTabRoute,
   ],

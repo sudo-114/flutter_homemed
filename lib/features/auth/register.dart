@@ -4,6 +4,67 @@ import 'package:homemed/main.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+class Register extends StatelessWidget {
+  const Register({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            children: [
+              Align(
+                alignment: .topLeft,
+                child: BackButton(
+                  onPressed: () {
+                    context.pop();
+                  },
+                ),
+              ),
+
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: .center,
+                  children: [
+                    Text(
+                      'Welcome to HomeMed',
+                      style: textTheme.headlineSmall?.copyWith(
+                        fontWeight: .bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Enter your phone number to get started',
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
+                    ),
+                    const SizedBox(height: 36),
+
+                    const PhoneForm(),
+                  ],
+                ),
+              ),
+
+              Text(
+                'By continuing, you agree to our Terms of Service and Privacy Policy',
+                textAlign: .center,
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 8),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class PhoneForm extends StatefulWidget {
   const PhoneForm({super.key});
 
@@ -104,67 +165,6 @@ class _PhoneFormState extends State<PhoneForm> {
               : const Text('Send code'),
         ),
       ],
-    );
-  }
-}
-
-class Register extends StatelessWidget {
-  const Register({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            children: [
-              Align(
-                alignment: .topLeft,
-                child: BackButton(
-                  onPressed: () {
-                    context.pop();
-                  },
-                ),
-              ),
-
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: .center,
-                  children: [
-                    Text(
-                      'Welcome to HomeMed',
-                      style: textTheme.headlineSmall?.copyWith(
-                        fontWeight: .bold,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Enter your phone number to get started',
-                      style: TextStyle(color: colorScheme.onSurfaceVariant),
-                    ),
-                    const SizedBox(height: 36),
-
-                    const PhoneForm(),
-                  ],
-                ),
-              ),
-
-              Text(
-                'By continuing, you agree to our Terms of Service and Privacy Policy',
-                textAlign: .center,
-                style: textTheme.bodySmall?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 8),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

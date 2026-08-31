@@ -5,6 +5,60 @@ import 'package:homemed/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:pinput/pinput.dart';
 
+class Verify extends StatelessWidget {
+  const Verify({super.key});
+  @override
+  Widget build(BuildContext context) {
+    final phone = GoRouterState.of(context).uri.queryParameters['phone'];
+    final textTheme = Theme.of(context).textTheme;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Center(
+            child: Column(
+              children: [
+                Align(
+                  alignment: .topLeft,
+                  child: BackButton(
+                    onPressed: () {
+                      context.pop();
+                    },
+                  ),
+                ),
+
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: .center,
+                    children: [
+                      Text(
+                        'Verify your number',
+                        style: textTheme.headlineSmall?.copyWith(
+                          fontWeight: .bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Enter the code sent to this number',
+                        style: TextStyle(color: colorScheme.onSurfaceVariant),
+                      ),
+                      const SizedBox(height: 8),
+
+                      OtpForm(phone: phone),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class OtpForm extends StatefulWidget {
   final String? phone;
   const OtpForm({super.key, this.phone});
@@ -175,60 +229,6 @@ class _OptFormState extends State<OtpForm> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class Verify extends StatelessWidget {
-  const Verify({super.key});
-  @override
-  Widget build(BuildContext context) {
-    final phone = GoRouterState.of(context).uri.queryParameters['phone'];
-    final textTheme = Theme.of(context).textTheme;
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Center(
-            child: Column(
-              children: [
-                Align(
-                  alignment: .topLeft,
-                  child: BackButton(
-                    onPressed: () {
-                      context.pop();
-                    },
-                  ),
-                ),
-
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: .center,
-                    children: [
-                      Text(
-                        'Verify your number',
-                        style: textTheme.headlineSmall?.copyWith(
-                          fontWeight: .bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Enter the code sent to this number',
-                        style: TextStyle(color: colorScheme.onSurfaceVariant),
-                      ),
-                      const SizedBox(height: 8),
-
-                      OtpForm(phone: phone),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

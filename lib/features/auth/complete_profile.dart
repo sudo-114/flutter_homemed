@@ -1,10 +1,10 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:homemed/features/auth/widgets/doctor_form.dart';
+import 'package:homemed/features/auth/widgets/patient_form.dart';
+import 'package:homemed/features/auth/widgets/role_card.dart';
 import 'package:homemed/main.dart';
-import 'package:homemed/widgets/doctor_form.dart';
-import 'package:homemed/widgets/patient_form.dart';
-import 'package:homemed/widgets/role_card.dart';
 
 class CompleteProfile extends StatefulWidget {
   const CompleteProfile({super.key});
