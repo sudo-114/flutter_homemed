@@ -111,7 +111,7 @@ class _RecentActivityState extends State<_RecentActivity> {
 
         return ListView(
           children: request.map((req) {
-            return HistoryCard(request: req);
+            return HistoryCard(key: ValueKey(req), request: req);
           }).toList(),
         );
       }),
@@ -181,7 +181,7 @@ class _EmergencyBanner extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        launchUrl(Uri.parse('tel:911'));
+        launchUrl(Uri.parse('tel:112'));
       },
       borderRadius: .circular(8),
       child: Container(

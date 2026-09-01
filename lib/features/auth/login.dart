@@ -133,6 +133,7 @@ class _PhoneFormState extends State<PhoneForm> {
           initialCountryCode: 'GH',
           autofocus: true,
           autovalidateMode: .disabled,
+          decoration: InputDecoration(hintText: '203114456'),
           onChanged: (text) => _phone = text.completeNumber,
         ),
         const SizedBox(height: 16),

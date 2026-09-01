@@ -266,6 +266,7 @@ class _RequestDetailBottomSheet extends StatelessWidget {
                 children: fileUrls.map((file) {
                   if (PatientFile.type(file) == 'images') {
                     return Padding(
+                      key: ValueKey(file),
                       padding: const EdgeInsets.only(right: 10),
                       child: _ImageCard(image: file),
                     );
@@ -282,7 +283,7 @@ class _RequestDetailBottomSheet extends StatelessWidget {
             Column(
               children: fileUrls.map((file) {
                 if (PatientFile.type(file) == 'audio') {
-                  return _AudioCard(audio: file);
+                  return _AudioCard(key: ValueKey(file), audio: file);
                 }
                 return const SizedBox.shrink();
               }).toList(),
@@ -415,7 +416,7 @@ class _ImageError extends StatelessWidget {
 
 class _AudioCard extends StatelessWidget {
   final String audio;
-  const _AudioCard({required this.audio});
+  const _AudioCard({super.key, required this.audio});
 
   @override
   Widget build(BuildContext context) {

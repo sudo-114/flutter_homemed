@@ -59,7 +59,7 @@ class _PatientHistoryState extends State<PatientHistory> {
 
                   return ListView(
                     children: request.map((req) {
-                      return HistoryCard(request: req);
+                      return HistoryCard(key: ValueKey(req), request: req);
                     }).toList(),
                   );
                 },
