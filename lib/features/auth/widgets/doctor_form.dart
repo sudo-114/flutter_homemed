@@ -50,8 +50,14 @@ class _DoctorFormState extends State<DoctorForm> {
         'role': widget.role,
       };
 
-      storage.write('role', widget.role);
       await supabase.from('profiles').upsert(payload);
+
+      await storage.write('role', widget.role);
+      await storage.write('name', _name.text.trim());
+      await storage.write('phone', widget.phone);
+      await storage.write('specialty', _specialty);
+      await storage.write('license', _license.text.trim());
+      await storage.write('xp_years', xpYears);
 
       if (!mounted) return;
       ScaffoldMessenger.of(

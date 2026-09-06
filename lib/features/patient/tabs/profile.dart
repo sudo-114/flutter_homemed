@@ -130,6 +130,7 @@ class _PatientProfileState extends State<PatientProfile> {
               OutlinedButton.icon(
                 onPressed: () {
                   supabase.auth.signOut();
+                  storage.erase();
                   context.go('/login');
                 },
                 icon: const Icon(Icons.logout),

@@ -52,8 +52,13 @@ class _PatientFormState extends State<PatientForm> {
         'role': widget.role,
       };
 
-      storage.write('role', widget.role);
       await supabase.from('profiles').upsert(payload);
+
+      await storage.write('role', widget.role);
+      await storage.write('name', _name.text.trim());
+      await storage.write('phone', widget.phone);
+      await storage.write('dob', dob);
+      await storage.write('gender', _selectedGender);
 
       if (!mounted) return;
       ScaffoldMessenger.of(

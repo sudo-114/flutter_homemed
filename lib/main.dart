@@ -8,6 +8,7 @@ import 'package:homemed/features/auth/complete_profile.dart';
 import 'package:homemed/features/auth/login.dart';
 import 'package:homemed/features/auth/register.dart';
 import 'package:homemed/features/auth/verify.dart';
+import 'package:homemed/features/auth/widgets/connection_required.dart';
 import 'package:homemed/features/patient/help_support.dart';
 import 'package:homemed/features/patient/tab_route.dart';
 import 'package:homemed/features/patient/widgets/request_form.dart';
@@ -97,15 +98,14 @@ final GoRouter _router = GoRouter(
             storage.write('dob', res['dob']);
             storage.write('gender', res['gender']);
           }
+          // If profile is incomplete, send to complete-profile
+        } else if (res == null) {
+          return goingToComplete ? null : '/complete-profile';
         }
       } catch (_) {
         // Ignore network error/timeout when offline
+        return '/connection-required';
       }
-    }
-
-    // If profile is incomplete, send to complete-profile
-    if (role == null) {
-      return goingToComplete ? null : '/complete-profile';
     }
 
     // User has a role: redirect away from auth/complete/home to their dashboard
@@ -129,6 +129,10 @@ final GoRouter _router = GoRouter(
     GoRoute(path: '/home', builder: (_, _) => const SizedBox.shrink()),
     GoRoute(path: '/request-form', builder: (_, _) => const RequestForm()),
     GoRoute(path: '/help', builder: (_, _) => const PatientHelpSupport()),
+    GoRoute(
+      path: '/connection-required',
+      builder: (context, state) => const ConnectionRequired(),
+    ),
 
     patientTabRoute,
   ],
