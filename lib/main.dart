@@ -149,7 +149,8 @@ class MyApp extends StatelessWidget {
       title: 'HomeMed',
       theme: ThemeData(
         useMaterial3: true,
-        fontFamily: 'Inter',
+        fontFamily: 'Plus Jakarta Sans',
+        colorSchemeSeed: const Color(0xFF5D47AC),
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
             minimumSize: Size(.infinity, 56),

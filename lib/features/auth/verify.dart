@@ -135,7 +135,7 @@ class _OptFormState extends State<OtpForm> {
     } catch (e) {
       String errMsg = 'Failed to resend code. Try again';
       if (e.toString().contains('SocketException')) {
-        errMsg = 'No internet connection';
+        errMsg = 'No internet connection. Try again';
       }
 
       if (!mounted) return;
@@ -177,7 +177,7 @@ class _OptFormState extends State<OtpForm> {
     } catch (e) {
       String errMsg = 'Failed to verify code. Try again';
       if (e.toString().contains('SocketException')) {
-        errMsg = 'No internet connection';
+        errMsg = 'No internet connection. Try again';
       }
 
       if (!mounted) return;

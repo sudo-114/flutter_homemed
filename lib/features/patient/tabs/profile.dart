@@ -274,7 +274,7 @@ class _EditPatientProfileFormState extends State<_EditPatientProfileForm> {
       String errMsg = 'Something went wrong. Try again later';
 
       if (e.toString().contains('SocketException')) {
-        errMsg = 'No internet connection';
+        errMsg = 'No internet connection. Try again';
       }
 
       if (!mounted) return;

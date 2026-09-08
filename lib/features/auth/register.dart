@@ -120,7 +120,7 @@ class _PhoneFormState extends State<PhoneForm> {
     } catch (e) {
       String errMsg = 'Failed to send code. Try again';
       if (e.toString().contains('SocketException')) {
-        errMsg = 'No internet connection';
+        errMsg = 'No internet connection. Try again';
       }
 
       if (!mounted) return;
