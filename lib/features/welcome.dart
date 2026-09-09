@@ -25,7 +25,7 @@ class Welcome extends StatelessWidget {
                       Text(
                         'HomeMed',
                         style: textTheme.headlineMedium?.copyWith(
-                          fontWeight: .bold,
+                          fontWeight: .w800,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -40,7 +40,7 @@ class Welcome extends StatelessWidget {
               FilledButton(
                 onPressed: () {
                   storage.write('not-first', true);
-                  context.push('/register');
+                  context.push('/auth');
                 },
                 child: const Text('Get Started'),
               ),
