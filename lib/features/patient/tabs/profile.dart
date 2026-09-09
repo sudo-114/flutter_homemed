@@ -131,7 +131,7 @@ class _PatientProfileState extends State<PatientProfile> {
                 onPressed: () {
                   supabase.auth.signOut();
                   storage.erase();
-                  context.go('/login');
+                  context.go('/auth');
                 },
                 icon: const Icon(Icons.logout),
                 label: const Text('Log out'),

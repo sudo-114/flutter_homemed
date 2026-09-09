@@ -5,8 +5,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_storage/get_storage.dart';
 import 'package:go_router/go_router.dart';
 import 'package:homemed/features/auth/complete_profile.dart';
-import 'package:homemed/features/auth/login.dart';
-import 'package:homemed/features/auth/register.dart';
+import 'package:homemed/features/auth/index.dart';
 import 'package:homemed/features/auth/verify.dart';
 import 'package:homemed/features/auth/widgets/connection_required.dart';
 import 'package:homemed/features/patient/help_support.dart';
@@ -57,15 +56,12 @@ final GoRouter _router = GoRouter(
     final loggedIn = user != null;
     final location = state.matchedLocation;
     final goingToAuthPages =
-        location == '/' ||
-        location == '/login' ||
-        location == '/register' ||
-        location == '/verify';
+        location == '/' || location == '/auth' || location == '/verify';
     final goingToComplete = location == '/complete-profile';
 
     if (!loggedIn) {
-      if (goingToComplete) return '/register';
-      if (location == '/' && storage.read('not-first') == true) return '/login';
+      if (goingToComplete) return '/auth';
+      if (location == '/' && storage.read('not-first') == true) return '/auth';
       return null;
     }
 
@@ -119,8 +115,7 @@ final GoRouter _router = GoRouter(
   },
   routes: [
     GoRoute(path: '/', builder: (context, state) => const Welcome()),
-    GoRoute(path: '/register', builder: (_, _) => const Register()),
-    GoRoute(path: '/login', builder: (_, _) => const Login()),
+    GoRoute(path: '/auth', builder: (_, _) => const Auth()),
     GoRoute(path: '/verify', builder: (_, _) => const Verify()),
     GoRoute(
       path: '/complete-profile',
@@ -154,17 +149,17 @@ class MyApp extends StatelessWidget {
         filledButtonTheme: FilledButtonThemeData(
           style: FilledButton.styleFrom(
             minimumSize: Size(.infinity, 56),
-            shape: RoundedRectangleBorder(borderRadius: .circular(8)),
+            shape: RoundedRectangleBorder(borderRadius: .circular(16)),
           ),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
             minimumSize: Size(.infinity, 56),
-            shape: RoundedRectangleBorder(borderRadius: .circular(8)),
+            shape: RoundedRectangleBorder(borderRadius: .circular(16)),
           ),
         ),
         inputDecorationTheme: InputDecorationThemeData(
-          border: OutlineInputBorder(borderRadius: .all(.circular(8))),
+          border: OutlineInputBorder(borderRadius: .all(.circular(16))),
         ),
         snackBarTheme: SnackBarThemeData(
           behavior: .floating,
