@@ -12,6 +12,7 @@ create table profiles (
   specialty TEXT,
   license TEXT,
   xp_years TEXT,
+  is_verified BOOL,
   created_at TIMESTAMPTZ default now()
 );
 

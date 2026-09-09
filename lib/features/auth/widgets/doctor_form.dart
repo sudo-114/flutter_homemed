@@ -40,6 +40,8 @@ class _DoctorFormState extends State<DoctorForm> {
       final userId = supabase.auth.currentUser?.id;
       final xpYears = int.tryParse(_xpYears.text.trim());
 
+      bool isVerified = false;
+
       final payload = {
         'id': userId,
         'name': _name.text.trim(),
@@ -48,6 +50,7 @@ class _DoctorFormState extends State<DoctorForm> {
         'xp_years': xpYears,
         'phone': widget.phone,
         'role': widget.role,
+        'is_verified': isVerified,
       };
 
       await supabase.from('profiles').upsert(payload);
@@ -60,11 +63,23 @@ class _DoctorFormState extends State<DoctorForm> {
       await storage.write('xp_years', xpYears);
 
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Profile saved')));
-
-      context.go('/home');
+      showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Text('You\'re all set!'),
+            content: const Text(
+              'Your profile has been submitted for review. We\'ll notify you once your account is approved.',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => context.go('/home'),
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     } on AuthApiException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(
