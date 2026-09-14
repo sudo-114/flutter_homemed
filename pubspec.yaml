@@ -27,6 +27,7 @@ dependencies:
   just_audio: ^0.10.6
   heroicons_flutter: ^0.5.0
   phone_numbers_parser: ^9.0.26
+  smart_auth: ^3.2.0
 
 dev_dependencies:
   flutter_test:
